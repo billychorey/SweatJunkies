@@ -59,6 +59,9 @@ server/config.py
 # Virtual env metadata
 .venv
 
+# Key stuff
+.env
+
 # pytest cache
 .pytest_cache
 __pycache__
