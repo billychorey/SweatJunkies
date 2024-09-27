@@ -9,6 +9,7 @@ import Activities from './Activities';
 import RaceResults from './RaceResults';
 import Profile from './Profile';
 import Footer from './Footer';
+import Navbar from './Navbar';
 
 const App = () => {
   const [user, setUser] = useState(null); // State to store user data
@@ -88,6 +89,7 @@ const App = () => {
 
   return (
     <div className="App">
+      {user && <Navbar />} {/* Render Navbar only if user is authenticated */}
       {error && <p className="error">{error}</p>}
       <Routes>
         <Route path="/" element={<Home />} />
