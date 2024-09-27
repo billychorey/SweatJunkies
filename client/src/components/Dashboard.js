@@ -1,6 +1,6 @@
 // client/src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [activities, setActivities] = useState([]);
@@ -36,24 +36,24 @@ const Dashboard = () => {
       .then(data => setAthlete(data))
       .catch(error => setError('Error fetching profile: ' + error.message));
 
-    // Fetch recent activities
+    // Fetch activities
     fetch('http://127.0.0.1:5555/api/activities', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
-        })
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Error fetching activities');
-            }
-            return response.json();
-        })
-  .then(data => setActivities(data))
-  .catch(error => setError('Error fetching activities: ' + error.message));
+    })
+    .then(response => {
+        if (!response.ok) {
+          throw new Error('Error fetching activities');
+        }
+        return response.json();
+    })
+    .then(data => setActivities(data))
+    .catch(error => setError('Error fetching activities: ' + error.message));
 
-    // Fetch recent races
+    // Fetch races
     fetch('http://127.0.0.1:5555/api/races', {
       method: 'GET',
       headers: {
@@ -80,7 +80,19 @@ const Dashboard = () => {
 
   return (
     <div className="content-column">
-      <h1>Welcome, {athlete.first_name} {athlete.last_name}</h1>
+      {/* Navigation Bar */}
+      <nav className="navbar">
+        <ul>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/activities">Activities</Link></li>
+          <li><Link to="/races">Races</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
+          <li><Link to="/logout">Logout</Link></li>
+        </ul>
+      </nav>
+
+      {/* Welcome Message */}
+      <h1>Welcome, {athlete.first_name} {athlete.last_name}!</h1>
       
       {error && <p className="error">{error}</p>}
 
@@ -106,6 +118,7 @@ const Dashboard = () => {
         ) : (
           <p>No activities logged.</p>
         )}
+        <button onClick={() => navigate('/activities')}>Add Activity</button>
       </section>
 
       {/* Races Section */}
@@ -122,6 +135,7 @@ const Dashboard = () => {
         ) : (
           <p>No races logged.</p>
         )}
+        <button onClick={() => navigate('/races')}>Add Race</button>
       </section>
     </div>
   );
