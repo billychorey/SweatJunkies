@@ -9,7 +9,7 @@ const Footer = ({ user }) => {
           <p>Great to see you again, {user.first_name}!</p>
           <p>Today's Date: {new Date().toLocaleDateString()}</p>
         </>
-      ) : null} {/* Remove the else content */}
+      ) : null}
     </div>
   );
 };

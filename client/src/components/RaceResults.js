@@ -6,6 +6,7 @@ const RaceResults = () => {
   const [races, setRaces] = useState([]); // State to store fetched races
   const [error, setError] = useState(''); // State to store errors
 
+  // Initial form values
   const initialValues = {
     race_name: '',
     date: '',
@@ -13,6 +14,7 @@ const RaceResults = () => {
     time: ''  // Field for time
   };
 
+  // Validation schema for the form
   const validationSchema = Yup.object({
     race_name: Yup.string().required('Race name is required'),
     date: Yup.date().required('Date is required'),

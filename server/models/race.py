@@ -5,11 +5,12 @@ from sqlalchemy_serializer import SerializerMixin
 
 class Race(db.Model, SerializerMixin):
     __tablename__ = 'races'
+
     id = db.Column(db.Integer, primary_key=True)
     race_name = db.Column(db.String(255), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    distance = db.Column(db.Float, nullable=False, default=0.0)  # Check default value and nullability
-    time = db.Column(db.String(255))  
+    distance = db.Column(db.String, nullable=False)  # Change this to String
+    time = db.Column(db.String, nullable=True)  # Assuming time is a string as well
     athlete_id = db.Column(db.Integer, db.ForeignKey('athletes.id'), nullable=False)
 
     # Relationship with the Athlete model

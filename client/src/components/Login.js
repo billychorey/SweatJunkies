@@ -1,8 +1,6 @@
 // client/src/components/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,41 +8,42 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-const handleLogin = (e) => {
-  e.preventDefault();
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-  fetch('http://127.0.0.1:5555/api/login', { // Ensure the URL is correct
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password }) // Make sure email and password variables are correct
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Login failed'); // Throw error if response is not OK
-      }
-      return response.json();
+    fetch('http://127.0.0.1:5555/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
     })
-    .then(data => {
-      if (data.token) {
-        // Store token in local storage or any secure place
-        localStorage.setItem('token', data.token);
-        navigate('/dashboard'); // Use navigate to redirect
-      } else {
-        setError('Login failed. Please check your credentials.');
-      }
-    })
-    .catch(error => {
-      console.error('Error during login:', error);
-      setError('An error occurred. Please try again.');
-    });
-};
+      .then(response => {
+        if (!response.ok) {
+          // Extract error message from response
+          return response.json().then(data => {
+            throw new Error(data.message || 'Login failed');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          navigate('/dashboard');
+        } else {
+          setError('Login failed. Please check your credentials.');
+        }
+      })
+      .catch(error => {
+        setError(error.message); // Display the specific error message
+      });
+  };
 
   return (
     <div className="content-column">
       <h2>Login</h2>
-      {error && <p className="error">{error}</p>} {/* Use the error class */}
+      {error && <p className="error">{error}</p>} {/* Display the error message */}
       <form onSubmit={handleLogin}>
         <div>
           <label>Email:</label>
@@ -66,8 +65,7 @@ const handleLogin = (e) => {
         </div>
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <Link to="/register">Register here</Link></p>
-
+      <p>Don't have an account? <a href="/register">Register here</a></p>
     </div>
   );
 };

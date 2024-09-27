@@ -86,15 +86,15 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    
-    print(f"Received login attempt: {email}")
-    
+
     user = Athlete.query.filter_by(email=email).first()
-    if not user or not user.check_password(password):
-        return jsonify({"message": "Invalid email or password"}), 401
-    
+    if not user:
+        return jsonify({"message": "Email not found"}), 401  # Return specific message for email not found
+
+    if not user.check_password(password):
+        return jsonify({"message": "Incorrect password"}), 401  # Return specific message for incorrect password
+
     access_token = create_access_token(identity={'email': user.email, 'id': user.id})
-    print(f"Generated access token for {user.email}: {access_token}")
     return jsonify({"token": access_token, "user": user.to_dict()}), 200
 
 # AthleteProfileResource
