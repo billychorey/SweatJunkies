@@ -1,4 +1,3 @@
-// client/src/components/App.js
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './Home';
@@ -10,10 +9,12 @@ import RaceResults from './RaceResults';
 import Profile from './Profile';
 import Footer from './Footer';
 import Navbar from './Navbar'; // Include Navbar
+import RaceParticipations from './RaceParticipations'; // Import RaceParticipations component
 
 const App = () => {
   const [user, setUser] = useState(null); // State to store user data
   const [activities, setActivities] = useState([]); // State to store activities
+  const [raceParticipations, setRaceParticipations] = useState([]); // State to store race participations
   const [error, setError] = useState(''); // State to store errors
   const navigate = useNavigate(); // Moved useNavigate inside the component
 
@@ -65,6 +66,23 @@ const App = () => {
         })
         .then(data => setActivities(data))
         .catch(error => setError('Error fetching activities: ' + error.message));
+
+      // Fetch race participations
+      fetch('http://127.0.0.1:5555/api/race_participations', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch race participatants');
+          }
+          return response.json();
+        })
+        .then(data => setRaceParticipations(data))
+        .catch(error => setError('Error fetching race participations: ' + error.message));
     }
   }, [navigate]); // Added navigate to the dependencies to avoid lint warning
 
@@ -92,6 +110,30 @@ const App = () => {
       .catch(error => setError('Error adding activity: ' + error.message));
   };
 
+  // Function to handle adding a new race participation
+  const handleAddRaceParticipation = (participation) => {
+    const token = localStorage.getItem('token');
+
+    fetch('http://127.0.0.1:5555/api/race_participations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(participation)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add race participation');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setRaceParticipations([...raceParticipations, data]);
+      })
+      .catch(error => setError('Error adding race participation: ' + error.message));
+  };
+
   return (
     <div className="App">
       <Navbar /> {/* Add the Navbar here */}
@@ -100,9 +142,10 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard user={user} activities={activities} />} />
+        <Route path="/dashboard" element={<Dashboard user={user} activities={activities} raceParticipations={raceParticipations} />} /> {/* Pass raceParticipations */}
         <Route path="/activities" element={<Activities activities={activities} onAddActivity={handleAddActivity} />} />
         <Route path="/races" element={<RaceResults />} />
+        <Route path="/race_participations" element={<RaceParticipations participations={raceParticipations} onAddParticipation={handleAddRaceParticipation} />} /> {/* New Route */}
         <Route path="/profile" element={<Profile />} />
       </Routes>
       <Footer user={user} /> {/* Pass user data to Footer */}

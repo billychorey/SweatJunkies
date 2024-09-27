@@ -1,5 +1,4 @@
 # models/race.py
-
 from config import db
 from sqlalchemy_serializer import SerializerMixin
 
@@ -9,15 +8,14 @@ class Race(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     race_name = db.Column(db.String(255), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    distance = db.Column(db.String, nullable=False)  # Change this to String
-    time = db.Column(db.String, nullable=True)  # Assuming time is a string as well
-    athlete_id = db.Column(db.Integer, db.ForeignKey('athletes.id'), nullable=False)
+    distance = db.Column(db.String(255), nullable=False)  # Distance of the race
+    result = db.Column(db.String(255), nullable=True)  # Result or finish time
 
-    # Relationship with the Athlete model
-    athlete = db.relationship('Athlete', back_populates='races')
+    # Many-to-Many Relationship with Athletes through RaceParticipation
+    race_participations = db.relationship('RaceParticipation', back_populates='race', cascade='all, delete-orphan')
 
     # Serialization rules to avoid circular references
-    serialize_rules = ('-athlete.races',)
+    serialize_rules = ('-race_participations.race',)
 
     # Convert the object to a dictionary
     def to_dict(self):
@@ -26,7 +24,5 @@ class Race(db.Model, SerializerMixin):
             'race_name': self.race_name,
             'date': self.date.strftime('%Y-%m-%d'),  # Format date as string
             'distance': self.distance,
-            'time': self.time,
-            'athlete_id': self.athlete_id,
-            'athlete_name': f'{self.athlete.first_name} {self.athlete.last_name}' if self.athlete else None  # Include athlete's full name
+            'result': self.result
         }

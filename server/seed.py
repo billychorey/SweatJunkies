@@ -1,10 +1,10 @@
 # seed.py
-
 from datetime import date
 from config import db, app
-from models.athlete import Athlete
-from models.activity import Activity
-from models.race import Race
+from models import Athlete, Activity, Race, RaceParticipation
+from faker import Faker
+
+fake = Faker()
 from werkzeug.security import generate_password_hash
 
 # Function to seed the database
@@ -91,41 +91,36 @@ def seed_data():
     race1 = Race(
         race_name='5K Marathon',
         date=date(2024, 9, 5),
-        distance=5.0,  # Distance in kilometers
-        time='00:20:45',  # Time in HH:MM:SS format
-        athlete=athlete1
+        distance='5.0 km',  # Use a string format for distance
+        result='00:20:45'
     )
 
     race2 = Race(
         race_name='10K City Run',
         date=date(2024, 9, 6),
-        distance=10.0,  # Distance in kilometers
-        time='00:42:30',  # Time in HH:MM:SS format
-        athlete=athlete2
+        distance='10.0 km',  # Use a string format for distance
+        result='00:42:30'
     )
 
     race3 = Race(
         race_name='Half Marathon',
         date=date(2024, 9, 8),
-        distance=21.097,  # Distance in kilometers
-        time='01:45:00',  # Time in HH:MM:SS format
-        athlete=athlete3
+        distance='21.097 km',  # Use a string format for distance
+        result='01:45:00'
     )
 
     race4 = Race(
         race_name='Marathon',
         date=date(2024, 9, 9),
-        distance=42.195,  # Distance in kilometers
-        time='03:30:15',  # Time in HH:MM:SS format
-        athlete=athlete4
+        distance='42.195 km',  # Use a string format for distance
+        result='03:30:15'
     )
 
     race5 = Race(
         race_name='Trail Run',
         date=date(2024, 9, 10),
-        distance=15.0,  # Distance in kilometers
-        time='01:20:00',  # Time in HH:MM:SS format
-        athlete=athlete5
+        distance='15.0 km',  # Use a string format for distance
+        result='01:20:00'
     )
 
     # Add races to the session

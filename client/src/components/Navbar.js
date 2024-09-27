@@ -1,4 +1,3 @@
-// client/src/components/Navbar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -19,10 +18,10 @@ const Navbar = () => {
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/activities">Activities</Link></li>
             <li><Link to="/races">Races</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
+            <li><Link to="/race_participations">Race Participants</Link></li>
             <li><button onClick={handleLogout}>Logout</button></li>
           </>
-        ) : null} {/* Display nothing if there's no token */}
+        ) : null} {/* Show nothing if there's no token */}
       </ul>
     </nav>
   );

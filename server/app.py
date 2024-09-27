@@ -5,10 +5,9 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
 from config import db, app, serializer
-from models import Athlete, Activity, Race
+from models import Athlete, Activity, Race, RaceParticipation
 from utils.email_utils import send_reset_email
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 # JWT and Bcrypt initialization
@@ -58,8 +57,8 @@ def register():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    first_name = data.get('firstName')
-    last_name = data.get('lastName')
+    first_name = data.get('firstName')  # Match the frontend's 'firstName'
+    last_name = data.get('lastName')  # Match the frontend's 'lastName'
 
     if Athlete.query.filter_by(email=email).first():
         return jsonify({"message": "Email already exists"}), 400
@@ -73,7 +72,9 @@ def register():
     db.session.add(new_athlete)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    response = jsonify({"message": "User registered successfully"})
+    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    return response, 201  # Include CORS headers in the response
 
 # Login route
 @app.route('/api/login', methods=['POST', 'OPTIONS'])
@@ -99,8 +100,6 @@ def login():
     # Create an access token with a 1-day expiry
     access_token = create_access_token(identity={'email': user.email, 'id': user.id}, expires_delta=timedelta(days=1))
     return jsonify({"token": access_token, "user": user.to_dict()}), 200
-
-
 
 # AthleteProfileResource
 class AthleteProfileResource(Resource):
@@ -185,8 +184,6 @@ class ActivityResource(Resource):
         return new_activity.to_dict(), 201
 
 # RaceResource with authentication
-from datetime import datetime
-
 class RaceResource(Resource):
     @jwt_required()
     def get(self):
@@ -226,6 +223,64 @@ class RaceResource(Resource):
         db.session.add(new_race)
         db.session.commit()
         return new_race.to_dict(), 201
+
+# RaceParticipationResource for managing race participations
+class RaceParticipationResource(Resource):
+    @jwt_required()
+    def get(self):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete not found'}, 404
+
+        # Get all participations for the current athlete
+        participations = RaceParticipation.query.filter_by(athlete_id=athlete.id).all()
+        return [participation.to_dict() for participation in participations], 200
+
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete not found'}, 404
+
+        race_id = data.get('race_id')
+        completion_time = data.get('completion_time')
+
+        # Check if the race exists
+        race = Race.query.get(race_id)
+        if not race:
+            return {'message': 'Race not found'}, 404
+
+        # Create a new participation
+        new_participation = RaceParticipation(
+            athlete_id=athlete.id,
+            race_id=race_id,
+            completion_time=completion_time
+        )
+
+        db.session.add(new_participation)
+        db.session.commit()
+        return new_participation.to_dict(), 201
+
+    @jwt_required()
+    def delete(self, participation_id):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete not found'}, 404
+
+        participation = RaceParticipation.query.get(participation_id)
+        if not participation or participation.athlete_id != athlete.id:
+            return {'message': 'Participation not found or unauthorized'}, 404
+
+        db.session.delete(participation)
+        db.session.commit()
+        return {'message': 'Participation deleted'}, 200
 
 # ForgotPasswordResource for handling password resets
 class ForgotPasswordResource(Resource):
@@ -300,6 +355,7 @@ class AthleteResource(Resource):
 api.add_resource(AthleteResource, '/api/athletes')
 api.add_resource(ActivityResource, '/api/activities')
 api.add_resource(RaceResource, '/api/races') 
+api.add_resource(RaceParticipationResource, '/api/race_participations')  # Added RaceParticipationResource
 api.add_resource(ForgotPasswordResource, '/api/forgot-password') 
 api.add_resource(ResetPasswordResource, '/api/reset-password') 
 api.add_resource(AthleteProfileResource, '/api/athlete/profile')

@@ -1,4 +1,3 @@
-// client/src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; // Import Link here
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -27,7 +26,7 @@ const Register = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify(values), // Send the values object directly
     })
       .then((response) => {
         if (!response.ok) {

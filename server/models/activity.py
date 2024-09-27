@@ -1,5 +1,4 @@
 # models/activity.py
-
 from config import db
 from sqlalchemy_serializer import SerializerMixin
 
@@ -12,7 +11,7 @@ class Activity(db.Model, SerializerMixin):
     date = db.Column(db.Date, nullable=False)
     athlete_id = db.Column(db.Integer, db.ForeignKey('athletes.id', ondelete='CASCADE'), nullable=False)
 
-    # Relationship mapping the activity to the athlete
+    # Relationship with Athlete model
     athlete = db.relationship('Athlete', back_populates='activities')
 
     # Serialization rules to prevent circular references
