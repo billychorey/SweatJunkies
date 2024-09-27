@@ -29,16 +29,24 @@ const RaceParticipations = () => {
     }, [setRaces, setError]); // Add setRaces and setError to dependencies
 
     return (
-        <div className = 'content-column collective-results'>
+        <div className='content-column result-list-items'>
             <h2>Other Sweat Junkie's Race Results</h2>
             {error && <p className="error">{error}</p>}
             <ul>
                 {races.length > 0 ? (
-                    races.map(race => (
-                        <li key={race.id}>
-                            {race.race_name} on {race.date} - Participants: {race.participants ? race.participants.join(', ') : 'No participants'}
-                        </li>
-                    ))
+                    races
+                        .filter(race => race.participants && race.participants.length > 0) // Filter out races with no participants
+                        .map(race => (
+                            <li className='results-list-items' key={race.id}>
+                                {race.race_name} on {race.date}:
+                                <p>
+                                    <strong>Participant name: </strong>
+                                    <span className="participants">
+                                        {race.participants.join(', ')}
+                                    </span>
+                                </p>
+                            </li>
+                        ))
                 ) : (
                     <p>No race participations found.</p>
                 )}

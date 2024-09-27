@@ -120,7 +120,7 @@ const RaceResults = () => {
       {error && <p className="error">{error}</p>}
       <ul>
         {races.map((race) => (
-          <li key={race.id}>
+          <li className = 'results-list-items' key={race.id}>
             {race.race_name} on {race.date} - Distance: {race.distance}, Time: {race.time}
           </li>
         ))}

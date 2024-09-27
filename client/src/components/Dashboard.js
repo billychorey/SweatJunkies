@@ -6,7 +6,7 @@ import { AppContext } from '../AppContext';
 const Dashboard = () => {
   const { activities, races, athlete, error, loading } = useContext(AppContext);
   const navigate = useNavigate();
-    
+
   const handleEditProfile = () => {
     navigate('/profile');
   };
@@ -24,9 +24,7 @@ const Dashboard = () => {
 
       {/* Profile Section */}
       <section>
-        <h2>Your Profile</h2>
-        <p>Email: {athlete.email}</p>
-        <button onClick={handleEditProfile}>Edit Profile</button>
+        <button className="edit-profile-button" onClick={handleEditProfile}>Edit Profile</button>
       </section>
 
       {/* Activities Section */}
@@ -43,11 +41,25 @@ const Dashboard = () => {
         ) : (
           <p>No activities logged.</p>
         )}
-        <button onClick={() => navigate('/activities')}>View Activity Page</button>
+        <button onClick={() => navigate('/activities')}>View Your Activity Page</button>
       </section>
 
-      
-
+      {/* Races Section */}
+      <section>
+        <h2>Recent Races</h2>
+        {races.length > 0 ? (
+          <ul>
+            {races.map(race => (
+              <li key={race.id}>
+                {race.race_name} on {race.date} - Distance: {race.distance} - Finish Time: {race.finish_time}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No races logged.</p>
+        )}
+        <button onClick={() => navigate('/races')}>View Your Race Results Page</button>
+      </section>
     </div>
   );
 };

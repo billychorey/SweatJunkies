@@ -18,14 +18,11 @@ html, body {
 }
 
 .footer {
-  position: absolute; /* Fix the footer to the bottom */
-  bottom: 0;
-  left: 0;
-  right: 0;
+  
   background-color: #333;
   color: white;
   padding: 1rem;
-  font-size: 1rem;
+  font-size: 12px;
 }
 
 ul {
@@ -143,8 +140,13 @@ textarea:focus {
 }
 
 
-.collective-results li {
+.results-list-items {
   padding: .75rem 0;
+  color:rgb(33, 47, 47);
+  font-weight: bold;
+}
+
+.activities-container p {
   color:rgb(33, 47, 47);
   font-weight: bold;
 }
@@ -162,4 +164,26 @@ div.todays-date {
   width: 90%;
   margin: 0 auto;
   padding: .5rem 0;
+}
+
+.edit-profile-button {
+  background-color: #61dafb; /* Change this to your desired background color */
+  color: #fff; /* Text color */
+  border: 2px solid #61dafb; /* Border color to match the background */
+  padding: 0.5rem 1rem; /* Padding */
+  border-radius: 5px; /* Rounded corners */
+  font-weight: bold; /* Bold text */
+  cursor: pointer; /* Pointer on hover */
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* Transition effect */
+}
+
+.edit-profile-button:hover {
+  background-color: darken(#61dafb, 10%); /* Darken on hover (adjust as needed) */
+  border-color: transparent; /* Change border color on hover */
+  color: white; /* Text color on hover */
+}
+
+
+.participants {
+  color: #ff5733;
 }

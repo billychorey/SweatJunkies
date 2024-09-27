@@ -8,7 +8,7 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [editMode, setEditMode] = useState(false); // State to handle edit mode
+  const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +20,6 @@ const Profile = () => {
       return;
     }
 
-    // Fetch user data
     fetch('http://127.0.0.1:5555/api/athlete/profile', {
       method: 'GET',
       headers: {
@@ -55,35 +54,32 @@ const Profile = () => {
     });
   };
 
-const handleUpdate = (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
 
-  // Update user data
-  fetch('http://127.0.0.1:5555/api/athlete/profile', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(userData)
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Error updating profile');
-      }
-      return response.json();
+    fetch('http://127.0.0.1:5555/api/athlete/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData)
     })
-    .then((data) => {
-      setUserData(data);
-      setEditMode(false);
-      navigate('/dashboard'); // Navigate to the dashboard after successful update
-    })
-    .catch((error) => {
-      setError('Error updating profile: ' + error.message);
-    });
-};
-
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Error updating profile');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUserData(data);
+        setEditMode(false);
+      })
+      .catch((error) => {
+        setError('Error updating profile: ' + error.message);
+      });
+  };
 
   const handleDelete = () => {
     const token = localStorage.getItem('token');
@@ -92,7 +88,6 @@ const handleUpdate = (e) => {
       return;
     }
 
-    // Delete user account
     fetch('http://127.0.0.1:5555/api/athlete/profile', {
       method: 'DELETE',
       headers: {
@@ -113,6 +108,11 @@ const handleUpdate = (e) => {
       .catch((error) => {
         setError('Error deleting profile: ' + error.message);
       });
+  };
+
+  const handleCancel = () => {
+    setEditMode(false); // Exit edit mode
+    navigate('/dashboard'); // Navigate to dashboard
   };
 
   if (loading) return <p>Loading...</p>;
@@ -145,7 +145,7 @@ const handleUpdate = (e) => {
               />
             </div>
             <button type="submit">Save Changes</button>
-            <button type="button" onClick={handleEditToggle}>Cancel</button>
+            <button type="button" onClick={handleCancel}>Cancel</button>
           </form>
         ) : (
           <>
