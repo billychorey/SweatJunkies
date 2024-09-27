@@ -1,38 +1,104 @@
-// client/src/App.js (or main component file)
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import Home from './Home';  // Update the import paths as needed
+// client/src/components/App.js
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './Home';
 import Login from './Login';
 import Register from './Register';
 import Dashboard from './Dashboard';
-import Workouts from './Workouts';
 import Activities from './Activities';
 import RaceResults from './RaceResults';
 import Profile from './Profile';
-import Navbar from './Navbar';  // Import the Navbar component
 import Footer from './Footer';
 
-const noNavbarRoutes = ['/', '/login', '/register'];  // Define the routes without Navbar
-
 const App = () => {
-  const location = useLocation();
+  const [user, setUser] = useState(null); // State to store user data
+  const [activities, setActivities] = useState([]); // State to store activities
+  const [error, setError] = useState(''); // State to store errors
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    // Fetch user data
+    fetch('http://127.0.0.1:5555/api/athlete/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        return response.json();
+      })
+      .then(data => setUser(data))
+      .catch(error => {
+        setError('Error fetching user data: ' + error.message);
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      });
+
+    // Fetch activities
+    fetch('http://127.0.0.1:5555/api/activities', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch activities');
+        }
+        return response.json();
+      })
+      .then(data => setActivities(data))
+      .catch(error => setError('Error fetching activities: ' + error.message));
+  }, []);
+
+  // Function to handle adding a new activity
+  const handleAddActivity = (activity) => {
+    const token = localStorage.getItem('token');
+
+    fetch('http://127.0.0.1:5555/api/activities', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(activity)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add activity');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setActivities([...activities, data]);
+      })
+      .catch(error => setError('Error adding activity: ' + error.message));
+  };
 
   return (
     <div className="App">
+      {error && <p className="error">{error}</p>}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/workouts" element={<Workouts />} />
-        <Route path="/activities" element={<Activities />} />
+        <Route path="/dashboard" element={<Dashboard user={user} activities={activities} />} />
+        <Route path="/activities" element={<Activities activities={activities} onAddActivity={handleAddActivity} />} />
         <Route path="/races" element={<RaceResults />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
-      {/* Render Navbar only if current path is not in noNavbarRoutes */}
-      {!noNavbarRoutes.includes(location.pathname) && <Navbar />}
-      {/* Render Footer only on routes other than home ("/") */}
-      {location.pathname !== '/' && <Footer />}
+      <Footer user={user} /> {/* Pass user data to Footer */}
     </div>
   );
 };

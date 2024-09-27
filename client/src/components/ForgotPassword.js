@@ -9,7 +9,7 @@ const ForgotPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch('http://127.0.0.1:5555/forgot-password', { // Make sure the URL matches your server endpoint
+    fetch('http://127.0.0.1:5555/api/forgot-password', { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

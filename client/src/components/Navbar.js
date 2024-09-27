@@ -18,7 +18,6 @@ const Navbar = () => {
           <>
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/activities">Activities</Link></li>
-            <li><Link to="/workouts">Workouts</Link></li>
             <li><Link to="/races">Races</Link></li>
             <li><Link to="/profile">Profile</Link></li>
             <li><button onClick={handleLogout}>Logout</button></li>

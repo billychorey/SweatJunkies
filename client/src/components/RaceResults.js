@@ -17,7 +17,7 @@ const RaceResults = () => {
     }
 
     // Fetch race results
-    fetch('http://127.0.0.1:5555/api/races/recent', {
+    fetch('http://127.0.0.1:5555/api/races', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -14,12 +14,8 @@ class Athlete(db.Model, SerializerMixin):
     password_hash = db.Column(db.String(128), nullable=False)
 
     # Relationships
-    workouts = db.relationship('Workout', back_populates='athlete', cascade='all, delete-orphan')
     activities = db.relationship('Activity', back_populates='athlete', cascade='all, delete-orphan')
     races = db.relationship('Race', back_populates='athlete', cascade='all, delete-orphan')
-
-    # Serializer rules to avoid circular references
-    serialize_rules = ('-password_hash', '-workouts.athlete', '-activities.athlete', '-races.athlete')
 
     # Password management methods
     def set_password(self, password):
@@ -35,7 +31,6 @@ class Athlete(db.Model, SerializerMixin):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
-            'workouts': [workout.to_dict() for workout in self.workouts],
             'activities': [activity.to_dict() for activity in self.activities],
             'races': [race.to_dict() for race in self.races]
         }

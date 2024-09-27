@@ -3,7 +3,6 @@
 from datetime import date
 from config import db, app
 from models.athlete import Athlete
-from models.workout import Workout
 from models.activity import Activity
 from models.race import Race
 from werkzeug.security import generate_password_hash
@@ -28,21 +27,6 @@ def seed_data():
     # Add athletes to the session
     db.session.add(athlete1)
     db.session.add(athlete2)
-
-    # Create some workouts
-    workout1 = Workout(
-        description='Morning Run',
-        duration=30,
-        date=date(2024, 9, 1),
-        athlete=athlete1
-    )
-
-    workout2 = Workout(
-        description='Evening Yoga',
-        duration=45,
-        date=date(2024, 9, 2),
-        athlete=athlete2
-    )
 
     # Create some activities
     activity1 = Activity(
@@ -75,8 +59,6 @@ def seed_data():
     )
 
     # Add all to the session
-    db.session.add(workout1)
-    db.session.add(workout2)
     db.session.add(activity1)
     db.session.add(activity2)
     db.session.add(race1)

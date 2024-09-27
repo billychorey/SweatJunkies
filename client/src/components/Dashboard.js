@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const [workouts, setWorkouts] = useState([]);
   const [activities, setActivities] = useState([]);
   const [races, setRaces] = useState([]);
   const [athlete, setAthlete] = useState({});
@@ -37,42 +36,25 @@ const Dashboard = () => {
       .then(data => setAthlete(data))
       .catch(error => setError('Error fetching profile: ' + error.message));
 
-    // Fetch recent workouts
-    fetch('http://127.0.0.1:5555/api/workouts/recent', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching workouts');
-        }
-        return response.json();
-      })
-      .then(data => setWorkouts(data))
-      .catch(error => setError('Error fetching workouts: ' + error.message));
-
     // Fetch recent activities
-    fetch('http://127.0.0.1:5555/api/activities/recent', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching activities');
+    fetch('http://127.0.0.1:5555/api/activities', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         }
-        return response.json();
-      })
-      .then(data => setActivities(data))
-      .catch(error => setError('Error fetching activities: ' + error.message));
+        })
+        .then(response => {
+            if (!response.ok) {
+            throw new Error('Error fetching activities');
+            }
+            return response.json();
+        })
+  .then(data => setActivities(data))
+  .catch(error => setError('Error fetching activities: ' + error.message));
 
     // Fetch recent races
-    fetch('http://127.0.0.1:5555/api/races/recent', {
+    fetch('http://127.0.0.1:5555/api/races', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -108,22 +90,6 @@ const Dashboard = () => {
         <p>Email: {athlete.email}</p>
         {/* Display other details as needed */}
         <button onClick={handleEditProfile}>Edit Profile</button>
-      </section>
-      
-      {/* Workouts Section */}
-      <section>
-        <h2>Recent Workouts</h2>
-        {workouts.length > 0 ? (
-          <ul>
-            {workouts.map(workout => (
-              <li key={workout.id}>
-                {workout.description} on {workout.date}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No workouts logged.</p>
-        )}
       </section>
 
       {/* Activities Section */}

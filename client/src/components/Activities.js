@@ -1,23 +1,28 @@
-// client/src/pages/Activities.js
-import React, { useState, useEffect } from 'react';
+// client/src/components/Activities.js
+import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
-const Activities = () => {
-  const [activities, setActivities] = useState([]);
+const Activities = ({ activities, onAddActivity }) => {
+  const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Fetch activities from the backend
-    fetch('/api/activities/recent', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using JWT authentication
-      }
-    })
-      .then(response => response.json())
-      .then(data => setActivities(data))
-      .catch(error => setError('Error fetching activities'));
-  }, []);
+  // Validation schema for Formik
+  const activitySchema = Yup.object().shape({
+    description: Yup.string().required('Description is required'),
+    date: Yup.date().required('Date is required'),
+    duration: Yup.number()
+      .required('Duration is required')
+      .min(1, 'Duration must be at least 1 minute')
+  });
+
+  // Function to handle form submission
+  const handleSaveActivity = (values, { setSubmitting, resetForm }) => {
+    onAddActivity(values); // Call the function passed as a prop
+    resetForm();  // Reset the form fields
+    setIsAdding(false); // Hide the form
+    setSubmitting(false);
+  };
 
   return (
     <div className="content-column">
@@ -30,13 +35,47 @@ const Activities = () => {
               <h2>{activity.description}</h2>
               <p>Date: {activity.date}</p>
               <p>Duration: {activity.duration} minutes</p>
-              <p>Athlete ID: {activity.athlete_id}</p>
             </div>
           ))
         ) : (
           <p>No activities found.</p>
         )}
       </div>
+      <button onClick={() => setIsAdding(true)}>Add Activity</button>
+      {isAdding && (
+        <Formik
+          initialValues={{ description: '', date: '', duration: '' }}
+          validationSchema={activitySchema}
+          onSubmit={handleSaveActivity}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <h2>Add New Activity</h2>
+              <div>
+                <label htmlFor="description">Description</label>
+                <Field name="description" type="text" />
+                <ErrorMessage name="description" component="div" className="error" />
+              </div>
+              <div>
+                <label htmlFor="date">Date</label>
+                <Field name="date" type="date" />
+                <ErrorMessage name="date" component="div" className="error" />
+              </div>
+              <div>
+                <label htmlFor="duration">Duration (minutes)</label>
+                <Field name="duration" type="number" />
+                <ErrorMessage name="duration" component="div" className="error" />
+              </div>
+              <button type="submit" disabled={isSubmitting}>
+                Save Activity
+              </button>
+              <button type="button" onClick={() => setIsAdding(false)}>
+                Cancel
+              </button>
+            </Form>
+          )}
+        </Formik>
+      )}
     </div>
   );
 };
