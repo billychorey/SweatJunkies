@@ -8,3 +8,13 @@
   :course_id: 7560
   :canvas_url: https://learning.flatironschool.com/courses/7560/pages/phase-4-full-stack-application-project-template
   :type: page
+---
+:lessons:
+- :id: 235006
+  :course_id: 6130
+  :canvas_url: https://learning.flatironschool.com/courses/6130/assignments/235006
+  :type: assignment
+- :id: 263737
+  :course_id: 7560
+  :canvas_url: https://learning.flatironschool.com/courses/7560/assignments/263737
+  :type: assignment
