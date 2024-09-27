@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/'); // Redirect to the landing page after logging out
   };
 
   return (
@@ -22,12 +22,7 @@ const Navbar = () => {
             <li><Link to="/profile">Profile</Link></li>
             <li><button onClick={handleLogout}>Logout</button></li>
           </>
-        ) : (
-          <>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li>
-          </>
-        )}
+        ) : null} {/* Display nothing if there's no token */}
       </ul>
     </nav>
   );

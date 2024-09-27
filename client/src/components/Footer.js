@@ -12,7 +12,7 @@ const Footer = ({ user }) => {
 
   return (
     <div className="footer">
-      <p>{`Welcome, ${user ? `${user.first_name} ${user.last_name}` : 'Guest'}`}</p>
+      <p>{`Great to see you again, ${user ? `${user.first_name}` : 'Guest'}!`}</p>
       <p>{`Today's Date: ${currentDate}`}</p>
     </div>
   );

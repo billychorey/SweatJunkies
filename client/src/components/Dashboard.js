@@ -80,19 +80,9 @@ const Dashboard = () => {
 
   return (
     <div className="content-column">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <ul>
-          <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><Link to="/activities">Activities</Link></li>
-          <li><Link to="/races">Races</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/logout">Logout</Link></li>
-        </ul>
-      </nav>
 
       {/* Welcome Message */}
-      <h1>Welcome, {athlete.first_name} {athlete.last_name}!</h1>
+      <h1>Dashboard for {athlete.first_name} {athlete.last_name}</h1>
       
       {error && <p className="error">{error}</p>}
 

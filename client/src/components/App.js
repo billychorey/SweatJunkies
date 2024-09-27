@@ -21,7 +21,6 @@ const App = () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      setError('User not authenticated. Redirecting to login.');
       navigate('/login'); // Redirect to login
       return;
     }
