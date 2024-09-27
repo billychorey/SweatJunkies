@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+// client/src/components/RaceResults.js
+import React, { useContext, useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { AppContext } from '../AppContext'; // Import your context
 
 const RaceResults = () => {
-  const [races, setRaces] = useState([]); // State to store fetched races
-  const [error, setError] = useState(''); // State to store errors
+  const { races, setRaces, error, setError } = useContext(AppContext); // Access context
+  const [loading, setLoading] = useState(true); // Loading state
 
   // Initial form values
   const initialValues = {
@@ -24,48 +26,56 @@ const RaceResults = () => {
 
   // Fetch all races on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      fetch('http://127.0.0.1:5555/api/races', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+    const fetchRaces = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        try {
+          const response = await fetch('http://127.0.0.1:5555/api/races', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch races');
+          }
+          const data = await response.json();
+          setRaces(data); // Use context to set races
+        } catch (error) {
+          setError('Error fetching races: ' + error.message);
+        } finally {
+          setLoading(false); // End loading
         }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch races');
-        }
-        return response.json();
-      })
-      .then(data => setRaces(data))
-      .catch(error => setError('Error fetching races: ' + error.message));
-    }
-  }, []);
+      }
+    };
+
+    fetchRaces();
+  }, [setRaces, setError]); // Add setRaces and setError to dependency array
 
   // Function to handle adding a new race
-  const handleSubmit = (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
     const token = localStorage.getItem('token');
 
-    fetch('http://127.0.0.1:5555/api/races', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(values)
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to add race');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setRaces([...races, data]); // Add new race to state
-        resetForm(); // Reset the form after successful submission
-      })
-      .catch(error => setError('Error adding race: ' + error.message));
+    try {
+      const response = await fetch('http://127.0.0.1:5555/api/races', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(values)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add race');
+      }
+      const data = await response.json();
+      setRaces(prevRaces => [...prevRaces, data]); // Update races through context
+      resetForm(); // Reset the form after successful submission
+    } catch (error) {
+      setError('Error adding race: ' + error.message);
+    }
   };
 
   return (
@@ -106,6 +116,7 @@ const RaceResults = () => {
       </Formik>
 
       <h2>Race Results</h2>
+      {loading && <p>Loading races...</p>}
       {error && <p className="error">{error}</p>}
       <ul>
         {races.map((race) => (

@@ -15,10 +15,10 @@ const Navbar = () => {
       <ul>
         {token ? (
           <>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/activities">Activities</Link></li>
-            <li><Link to="/races">Races</Link></li>
-            <li><Link to="/race_participations">Race Participants</Link></li>
+            <li><Link to="/dashboard">My Dashboard</Link></li>
+            <li><Link to="/activities">My Activities</Link></li>
+            <li><Link to="/races">My Races</Link></li>
+            <li><Link to="/race_participations">Other Sweat Junkie Results</Link></li>
             <li><button onClick={handleLogout}>Logout</button></li>
           </>
         ) : null} {/* Show nothing if there's no token */}

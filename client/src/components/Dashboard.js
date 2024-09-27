@@ -1,76 +1,11 @@
 // client/src/components/Dashboard.js
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../AppContext'; // Import your context
 
 const Dashboard = () => {
-  const [activities, setActivities] = useState([]);
-  const [races, setRaces] = useState([]);
-  const [athlete, setAthlete] = useState({});
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  const { activities, races, athlete, error, loading } = useContext(AppContext); // Get data from context
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      setError('User is not authenticated');
-      setLoading(false);
-      return;
-    }
-
-    // Fetch athlete profile
-    fetch('http://127.0.0.1:5555/api/athlete/profile', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching profile');
-        }
-        return response.json();
-      })
-      .then(data => setAthlete(data))
-      .catch(error => setError('Error fetching profile: ' + error.message));
-
-    // Fetch activities
-    fetch('http://127.0.0.1:5555/api/activities', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching activities');
-        }
-        return response.json();
-    })
-    .then(data => setActivities(data))
-    .catch(error => setError('Error fetching activities: ' + error.message));
-
-    // Fetch races
-    fetch('http://127.0.0.1:5555/api/races', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching races');
-        }
-        return response.json();
-      })
-      .then(data => setRaces(data))
-      .catch(error => setError('Error fetching races: ' + error.message))
-      .finally(() => setLoading(false));
-  }, []);
 
   const handleEditProfile = () => {
     navigate('/profile');
@@ -80,9 +15,8 @@ const Dashboard = () => {
 
   return (
     <div className="content-column">
-
       {/* Welcome Message */}
-      <h1>Dashboard for {athlete.first_name} {athlete.last_name}</h1>
+      <h1>Dashboard for {athlete.first_name || 'Guest'} {athlete.last_name || ''}</h1>
       
       {error && <p className="error">{error}</p>}
 
@@ -90,7 +24,6 @@ const Dashboard = () => {
       <section>
         <h2>Your Profile</h2>
         <p>Email: {athlete.email}</p>
-        {/* Display other details as needed */}
         <button onClick={handleEditProfile}>Edit Profile</button>
       </section>
 
@@ -118,10 +51,9 @@ const Dashboard = () => {
           <ul>
             {races.map(race => (
                 <li key={race.id}>
-                    {race.race_name} on {race.date} - Distance: {race.distance} km, Time: {race.time}
+                    {race.race_name} on {race.date} - Distance: {race.distance}, Finish Time: {race.finish_time}
                 </li>
             ))}
-
           </ul>
         ) : (
           <p>No races logged.</p>

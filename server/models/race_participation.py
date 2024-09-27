@@ -18,9 +18,6 @@ class RaceParticipation(db.Model, SerializerMixin):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'race_id': self.race_id,
-            'athlete_id': self.athlete_id,
             'completion_time': self.completion_time,
             'race_name': self.race.race_name if self.race else None,
             'athlete_name': f'{self.athlete.first_name} {self.athlete.last_name}' if self.athlete else None

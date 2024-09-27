@@ -9,7 +9,7 @@ class Race(db.Model, SerializerMixin):
     race_name = db.Column(db.String(255), nullable=False)
     date = db.Column(db.Date, nullable=False)
     distance = db.Column(db.String(255), nullable=False)  # Distance of the race
-    result = db.Column(db.String(255), nullable=True)  # Result or finish time
+    finish_time = db.Column(db.String(255), nullable=True)  # Finish time of the race
 
     # Many-to-Many Relationship with Athletes through RaceParticipation
     race_participations = db.relationship('RaceParticipation', back_populates='race', cascade='all, delete-orphan')
@@ -24,5 +24,5 @@ class Race(db.Model, SerializerMixin):
             'race_name': self.race_name,
             'date': self.date.strftime('%Y-%m-%d'),  # Format date as string
             'distance': self.distance,
-            'result': self.result
+            'finish_time': self.finish_time  # Updated to reflect the new column name
         }

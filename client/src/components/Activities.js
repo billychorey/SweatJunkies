@@ -1,72 +1,72 @@
-// client/src/components/Activities.js
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { AppContext } from '../AppContext'; // Import your context
 
 const Activities = () => {
-  const [activities, setActivities] = useState([]); // State to store fetched activities
+  const { activities, setActivities, error, setError } = useContext(AppContext); // Access context
   const [isAdding, setIsAdding] = useState(false);
-  const [error, setError] = useState('');
 
-  // Validation schema for Formik
   const activitySchema = Yup.object().shape({
     description: Yup.string().required('Description is required'),
     date: Yup.date().required('Date is required'),
     duration: Yup.number()
       .required('Duration is required')
-      .min(1, 'Duration must be at least 1 minute')
+      .min(1, 'Duration must be at least 1 minute'),
   });
 
-  // Fetch all activities on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('http://127.0.0.1:5555/api/activities', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(response => {
+    const fetchActivities = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await fetch('http://127.0.0.1:5555/api/activities', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
           if (!response.ok) {
             throw new Error('Failed to fetch activities');
           }
-          return response.json();
-        })
-        .then(data => setActivities(data))
-        .catch(error => setError('Error fetching activities: ' + error.message));
-    } else {
-      setError('User is not authenticated');
-    }
-  }, []);
+          const data = await response.json();
+          setActivities(data); // Use context to set activities
+        } catch (error) {
+          setError('Error fetching activities: ' + error.message);
+        }
+      } else {
+        setError('User is not authenticated');
+      }
+    };
 
-  // Function to handle form submission
-  const handleSaveActivity = (values, { setSubmitting, resetForm }) => {
+    fetchActivities();
+  }, [setActivities, setError]); // Add setActivities and setError to dependency array
+
+  const handleSaveActivity = async (values, { setSubmitting, resetForm }) => {
     const token = localStorage.getItem('token');
 
-    fetch('http://127.0.0.1:5555/api/activities', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(values)
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to add activity');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setActivities([...activities, data]); // Add new activity to state
-        resetForm();  // Reset the form fields
-        setIsAdding(false); // Hide the form
-        setSubmitting(false);
-      })
-      .catch(error => {
-        setError('Error adding activity: ' + error.message);
-        setSubmitting(false);
+    try {
+      const response = await fetch('http://127.0.0.1:5555/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to add activity');
+      }
+
+      const data = await response.json();
+      setActivities((prevActivities) => [...prevActivities, data]); // Update activities through context
+      resetForm();
+      setIsAdding(false);
+    } catch (error) {
+      setError('Error adding activity: ' + error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
