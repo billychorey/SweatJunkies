@@ -180,15 +180,36 @@ class ActivityResource(Resource):
         db.session.commit()
         return new_activity.to_dict(), 201
 
-# RaceResource for managing races
+# RaceResource with authentication
 class RaceResource(Resource):
+    @jwt_required()
     def get(self):
-        races = Race.query.all()
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete not found'}, 404
+
+        # Fetch only races associated with the authenticated athlete
+        races = Race.query.filter_by(athlete_id=athlete.id).all()
         return [race.to_dict() for race in races], 200
 
+    @jwt_required()
     def post(self):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete not found'}, 404
+
         data = request.get_json()
-        new_race = Race(**data)
+        new_race = Race(
+            race_name=data['race_name'],
+            date=data['date'],
+            result=data['result'],
+            athlete_id=athlete.id  # Set the athlete ID for the race
+        )
+        
         db.session.add(new_race)
         db.session.commit()
         return new_race.to_dict(), 201
