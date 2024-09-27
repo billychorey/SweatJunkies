@@ -8,6 +8,8 @@ from config import db, app, serializer
 from models import Athlete, Activity, Race
 from utils.email_utils import send_reset_email
 from datetime import datetime
+from datetime import timedelta
+
 
 # JWT and Bcrypt initialization
 jwt = JWTManager(app)
@@ -94,8 +96,11 @@ def login():
     if not user.check_password(password):
         return jsonify({"message": "Incorrect password"}), 401  # Return specific message for incorrect password
 
-    access_token = create_access_token(identity={'email': user.email, 'id': user.id})
+    # Create an access token with a 1-day expiry
+    access_token = create_access_token(identity={'email': user.email, 'id': user.id}, expires_delta=timedelta(days=1))
     return jsonify({"token": access_token, "user": user.to_dict()}), 200
+
+
 
 # AthleteProfileResource
 class AthleteProfileResource(Resource):
@@ -120,11 +125,7 @@ class AthleteProfileResource(Resource):
         data = request.get_json()
 
         athlete.first_name = data.get('first_name', athlete.first_name)
-        athlete.last_name = data.get('last_name', athlete.last_name)
-        athlete.date_of_birth = data.get('date_of_birth', athlete.date_of_birth)
-        athlete.gender = data.get('gender', athlete.gender)
-        athlete.profile_picture = data.get('profile_picture', athlete.profile_picture)
-        athlete.bio = data.get('bio', athlete.bio)
+        athlete.email = data.get('email', athlete.email)
 
         db.session.commit()
 

@@ -1,9 +1,10 @@
 // client/src/components/Activities.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const Activities = ({ activities, onAddActivity }) => {
+const Activities = () => {
+  const [activities, setActivities] = useState([]); // State to store fetched activities
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,12 +17,56 @@ const Activities = ({ activities, onAddActivity }) => {
       .min(1, 'Duration must be at least 1 minute')
   });
 
+  // Fetch all activities on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('http://127.0.0.1:5555/api/activities', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch activities');
+          }
+          return response.json();
+        })
+        .then(data => setActivities(data))
+        .catch(error => setError('Error fetching activities: ' + error.message));
+    } else {
+      setError('User is not authenticated');
+    }
+  }, []);
+
   // Function to handle form submission
   const handleSaveActivity = (values, { setSubmitting, resetForm }) => {
-    onAddActivity(values); // Call the function passed as a prop
-    resetForm();  // Reset the form fields
-    setIsAdding(false); // Hide the form
-    setSubmitting(false);
+    const token = localStorage.getItem('token');
+
+    fetch('http://127.0.0.1:5555/api/activities', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(values)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add activity');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setActivities([...activities, data]); // Add new activity to state
+        resetForm();  // Reset the form fields
+        setIsAdding(false); // Hide the form
+        setSubmitting(false);
+      })
+      .catch(error => {
+        setError('Error adding activity: ' + error.message);
+        setSubmitting(false);
+      });
   };
 
   return (
