@@ -23,7 +23,6 @@ const App = () => {
     // Check if the current path is /login or /register and skip redirect if it is
     const currentPath = window.location.pathname;
     if (!token && currentPath !== '/login' && currentPath !== '/register') {
-      setError('User not authenticated. Redirecting to login.');
       navigate('/login'); // Redirect to login if not authenticated and not on /login or /register
       return;
     }
