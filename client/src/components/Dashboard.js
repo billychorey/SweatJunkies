@@ -108,7 +108,7 @@ const Dashboard = () => {
         ) : (
           <p>No activities logged.</p>
         )}
-        <button onClick={() => navigate('/activities')}>Add Activity</button>
+        <button onClick={() => navigate('/activities')}>View Activity Page</button>
       </section>
 
       {/* Races Section */}
@@ -126,7 +126,7 @@ const Dashboard = () => {
         ) : (
           <p>No races logged.</p>
         )}
-        <button onClick={() => navigate('/races')}>Add Race</button>
+        <button onClick={() => navigate('/races')}>View Race Results Page</button>
       </section>
     </div>
   );
