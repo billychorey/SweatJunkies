@@ -23,7 +23,7 @@ const App = ({ activities, raceParticipations, error, handleAddActivity, handleA
 
             {/* Conditionally render greeting and date based on current route */}
             {location.pathname === '/dashboard' && (
-                <div>
+                <div className="content-column">
                     <p>Today's Date: {new Date().toLocaleDateString()}</p>
                 </div>
             )}

@@ -79,7 +79,7 @@ const RaceResults = () => {
   };
 
   return (
-    <div>
+    <div className='content-column'>
       <h2>Add New Race</h2>
       <Formik
         initialValues={initialValues}

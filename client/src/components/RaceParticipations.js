@@ -29,8 +29,8 @@ const RaceParticipations = () => {
     }, [setRaces, setError]); // Add setRaces and setError to dependencies
 
     return (
-        <div>
-            <h2>Other Sweat Junkie's Results</h2>
+        <div className = 'content-column collective-results'>
+            <h2>Other Sweat Junkie's Race Results</h2>
             {error && <p className="error">{error}</p>}
             <ul>
                 {races.length > 0 ? (
