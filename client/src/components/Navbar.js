@@ -14,7 +14,6 @@ const Navbar = () => {
   return (
     <nav>
       <ul>
-        <li><Link to="/">Home</Link></li>
         {token ? (
           <>
             <li><Link to="/dashboard">Dashboard</Link></li>

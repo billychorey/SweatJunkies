@@ -1,13 +1,12 @@
-# server/app.py
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource  
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
-from config import db, app, serializer  # Import your config and serializer
-from models import Athlete, Workout, Activity, Race  # Import your models
-from utils.email_utils import send_reset_email  # Import your email utility
+from config import db, app, serializer  
+from models import Athlete, Workout, Activity, Race  
+from utils.email_utils import send_reset_email  
 
 # JWT and Bcrypt initialization
 jwt = JWTManager(app)
@@ -81,6 +80,75 @@ def login():
     access_token = create_access_token(identity={'email': user.email})
     return jsonify({"token": access_token, "user": user.to_dict()}), 200
 
+# AthleteProfileResource
+class AthleteProfileResource(Resource):
+    @jwt_required()
+    def get(self):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete profile not found'}, 404
+
+        return athlete.to_dict(), 200
+
+    @jwt_required()
+    def put(self):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete profile not found'}, 404
+
+        data = request.get_json()
+
+        athlete.first_name = data.get('first_name', athlete.first_name)
+        athlete.last_name = data.get('last_name', athlete.last_name)
+        athlete.date_of_birth = data.get('date_of_birth', athlete.date_of_birth)
+        athlete.gender = data.get('gender', athlete.gender)
+        athlete.profile_picture = data.get('profile_picture', athlete.profile_picture)
+        athlete.bio = data.get('bio', athlete.bio)
+
+        db.session.commit()
+
+        return athlete.to_dict(), 200
+
+    @jwt_required()
+    def delete(self):
+        current_user_email = get_jwt_identity()['email']
+        athlete = Athlete.query.filter_by(email=current_user_email).first()
+
+        if not athlete:
+            return {'message': 'Athlete profile not found'}, 404
+
+        db.session.delete(athlete)
+        db.session.commit()
+
+        return {'message': 'Athlete profile deleted'}, 200
+
+# Recent Workouts Resource
+class RecentWorkoutsResource(Resource):
+    @jwt_required()  # Protect this route
+    def get(self):
+        # You can adjust the query to fetch recent workouts as needed
+        recent_workouts = Workout.query.order_by(Workout.date.desc()).limit(5).all()
+        return [workout.to_dict() for workout in recent_workouts], 200
+
+# Recent Activities Resource
+class RecentActivitiesResource(Resource):
+    @jwt_required()  # Protect this route
+    def get(self):
+        # You can adjust the query to fetch recent activities as needed
+        recent_activities = Activity.query.order_by(Activity.date.desc()).limit(5).all()
+        return [activity.to_dict() for activity in recent_activities], 200
+
+# Recent Races Resource
+class RecentRacesResource(Resource):
+    @jwt_required()  # Protect this route
+    def get(self):
+        # You can adjust the query to fetch recent races as needed
+        recent_races = Race.query.order_by(Race.date.desc()).limit(5).all()
+        return [race.to_dict() for race in recent_races], 200
 
 # Define your resource classes
 class AthleteResource(Resource):
@@ -116,7 +184,6 @@ class AthleteResource(Resource):
         db.session.commit()
         return new_athlete.to_dict(), 201
 
-# Similar structure for other resources...
 class WorkoutResource(Resource):
     def get(self):
         workouts = Workout.query.all()
@@ -194,6 +261,10 @@ api.add_resource(ActivityResource, '/activities')
 api.add_resource(RaceResource, '/races')
 api.add_resource(ForgotPasswordResource, '/forgot-password')
 api.add_resource(ResetPasswordResource, '/reset-password')
+api.add_resource(AthleteProfileResource, '/api/athlete/profile')
+api.add_resource(RecentWorkoutsResource, '/api/workouts/recent')  # Fetch recent workouts
+api.add_resource(RecentActivitiesResource, '/api/activities/recent')  # Fetch recent activities
+api.add_resource(RecentRacesResource, '/api/races/recent')  # Fetch recent races
 
 # Root route
 @app.route('/')
@@ -205,3 +276,4 @@ if __name__ == '__main__':
         print("App context is active")
         db.create_all()
         app.run(port=5555, debug=True)
+
