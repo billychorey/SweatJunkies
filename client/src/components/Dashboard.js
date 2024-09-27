@@ -46,27 +46,8 @@ const Dashboard = () => {
         <button onClick={() => navigate('/activities')}>View Activity Page</button>
       </section>
 
-      {/* Races Section */}
-      <section>
-        <h2>Recent Races</h2>
-        {races.length > 0 ? (
-          <ul>
-            {races.map(race => (
-              <li key={race.id}>
-                {race.race_name} on {race.date} - Distance: {race.distance}, Finish Time: {race.finish_time}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No races logged.</p>
-        )}
-        <button onClick={() => navigate('/races')}>View Race Results Page</button>
-      </section>
+      
 
-      {/* Footer Section */}
-      <footer>
-        <p>© 2024 Sweat Junkies. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

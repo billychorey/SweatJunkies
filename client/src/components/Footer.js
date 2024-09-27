@@ -7,10 +7,12 @@ const Footer = ({ user }) => {
             <div className='content-column'>
             {user ? (
                 <>
-                <p>Keep up the good work {user.first_name}, Every step counts!!</p>
+                      <p>Keep up the good work {user.first_name}, Every step counts!!</p>
+                      <p>© 2024 Sweat Junkies. All rights reserved.</p>
                 </>
             ) : (
                 <p>Welcome to Sweat Junkies! Log in to track your progress.</p>
+                
             )}
             </div>
         </div>

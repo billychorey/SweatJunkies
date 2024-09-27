@@ -55,33 +55,35 @@ const Profile = () => {
     });
   };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
+const handleUpdate = (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem('token');
 
-    // Update user data
-    fetch('http://127.0.0.1:5555/api/athlete/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData)
+  // Update user data
+  fetch('http://127.0.0.1:5555/api/athlete/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData)
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Error updating profile');
+      }
+      return response.json();
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Error updating profile');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setUserData(data);
-        setEditMode(false);
-      })
-      .catch((error) => {
-        setError('Error updating profile: ' + error.message);
-      });
-  };
+    .then((data) => {
+      setUserData(data);
+      setEditMode(false);
+      navigate('/dashboard'); // Navigate to the dashboard after successful update
+    })
+    .catch((error) => {
+      setError('Error updating profile: ' + error.message);
+    });
+};
+
 
   const handleDelete = () => {
     const token = localStorage.getItem('token');

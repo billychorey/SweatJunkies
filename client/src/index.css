@@ -148,3 +148,18 @@ textarea:focus {
   color:rgb(33, 47, 47);
   font-weight: bold;
 }
+
+div.todays-date {
+  width: 100%;
+  padding-bottom: 0;
+  color: rgb(69, 86, 116);
+  font-weight: bold;
+    background-color: #e0e0e0; 
+
+}
+
+.date {
+  width: 90%;
+  margin: 0 auto;
+  padding: .5rem 0;
+}
