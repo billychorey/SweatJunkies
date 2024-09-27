@@ -6,17 +6,38 @@ const Footer = () => {
   const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
+    // Get the token from localStorage
+    const token = localStorage.getItem('token');
+    
+    // If there's no token, keep 'Guest' as the athlete's name
+    if (!token) {
+      setAthleteName('Guest');
+      return;
+    }
+
     // Fetch athlete's name from the backend
-    fetch('/api/athlete/profile', {
+    fetch('http://127.0.0.1:5555/api/athlete/profile', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using JWT authentication
+        'Authorization': `Bearer ${token}` // If using JWT authentication
       }
     })
-      .then(response => response.json())
-      .then(data => setAthleteName(`${data.first_name} ${data.last_name}`))
-      .catch(error => setAthleteName('Guest')); // Fallback to 'Guest' if there's an error
+      .then(response => {
+        if (!response.ok) {
+          // Log status and status text to get more information
+          console.error(`Error: ${response.status} - ${response.statusText}`);
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setAthleteName(`${data.first_name} ${data.last_name}`);
+      })
+      .catch(error => {
+        console.error('Error fetching profile:', error);
+        setAthleteName('Guest'); // Fallback to 'Guest' if there's an error
+      });
 
     // Set current date
     const date = new Date();
