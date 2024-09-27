@@ -52,6 +52,10 @@ jspm_packages
 # Ignore bundler config.
 /.bundle
 
+#ignore server config
+server/config.py
+
+
 # Virtual env metadata
 .venv
 
