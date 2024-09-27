@@ -12,16 +12,16 @@ const RaceResults = () => {
   const initialValues = {
     race_name: '',
     date: '',
-    distance: '',  // Free-form distance field
-    time: ''  // Field for time
+    distance: '',
+    time: ''
   };
 
   // Validation schema for the form
   const validationSchema = Yup.object({
     race_name: Yup.string().required('Race name is required'),
     date: Yup.date().required('Date is required'),
-    distance: Yup.string().required('Distance is required'), // Validation as string to allow flexibility
-    time: Yup.string().required('Time is required')  // Validation for time
+    distance: Yup.string().required('Distance is required'),
+    time: Yup.string().required('Time is required')
   });
 
   // Fetch all races on component mount
@@ -53,7 +53,6 @@ const RaceResults = () => {
     fetchRaces();
   }, [setRaces, setError]); // Add setRaces and setError to dependency array
 
-  // Function to handle adding a new race
   const handleSubmit = async (values, { resetForm }) => {
     const token = localStorage.getItem('token');
 
@@ -119,11 +118,15 @@ const RaceResults = () => {
       {loading && <p>Loading races...</p>}
       {error && <p className="error">{error}</p>}
       <ul>
-        {races.map((race) => (
-          <li className = 'results-list-items' key={race.id}>
-            {race.race_name} on {race.date} - Distance: {race.distance}, Time: {race.time}
-          </li>
-        ))}
+        {races.length > 0 ? (
+          races.map((race) => (
+            <li className='results-list-items' key={race.id}>
+              {race.race_name} on {race.date} - Distance: {race.distance}, Time: {race.time}
+            </li>
+          ))
+        ) : (
+          <p>No races logged.</p>
+        )}
       </ul>
     </div>
   );

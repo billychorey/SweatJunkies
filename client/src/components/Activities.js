@@ -1,3 +1,4 @@
+// client/src/components/Activities.js
 import React, { useContext, useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -5,8 +6,9 @@ import { AppContext } from '../AppContext'; // Import your context
 
 const Activities = () => {
   const { activities, setActivities, error, setError } = useContext(AppContext); // Access context
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAdding, setIsAdding] = useState(false); // State to manage adding new activity
 
+  // Validation schema for the activity form
   const activitySchema = Yup.object().shape({
     description: Yup.string().required('Description is required'),
     date: Yup.date().required('Date is required'),
@@ -15,6 +17,7 @@ const Activities = () => {
       .min(1, 'Duration must be at least 1 minute'),
   });
 
+  // Fetch all activities on component mount
   useEffect(() => {
     const fetchActivities = async () => {
       const token = localStorage.getItem('token');
@@ -41,6 +44,7 @@ const Activities = () => {
     fetchActivities();
   }, [setActivities, setError]); // Add setActivities and setError to dependency array
 
+  // Function to handle adding a new activity
   const handleSaveActivity = async (values, { setSubmitting, resetForm }) => {
     const token = localStorage.getItem('token');
 
@@ -60,8 +64,8 @@ const Activities = () => {
 
       const data = await response.json();
       setActivities((prevActivities) => [...prevActivities, data]); // Update activities through context
-      resetForm();
-      setIsAdding(false);
+      resetForm(); // Reset the form after successful submission
+      setIsAdding(false); // Close the form after submission
     } catch (error) {
       setError('Error adding activity: ' + error.message);
     } finally {

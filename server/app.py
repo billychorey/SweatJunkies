@@ -10,7 +10,7 @@ from config import db, app, serializer
 from models import Athlete, Activity, Race, RaceParticipation
 from utils.email_utils import send_reset_email  # Ensure this utility is implemented
 from datetime import datetime, timedelta
-import os  # Added import for os
+import os
 import sendgrid
 from sendgrid.helpers.mail import Mail
 
@@ -18,7 +18,7 @@ from sendgrid.helpers.mail import Mail
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
-# Configure CORS to allow all methods and handle preflight OPTIONS request properly
+# Configure CORS
 CORS(app, resources={r"/*": {
     "origins": ["http://localhost:3000"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -41,7 +41,6 @@ def handle_options():
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         return response
 
-# Handle CORS preflight requests globally
 @app.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
@@ -63,6 +62,7 @@ def send_welcome_email(user_email):
         print(f"Email sent to {user_email}, Status Code: {response.status_code}")
     except Exception as e:
         print(f"Error sending email: {str(e)}")
+
 # Register route
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -204,11 +204,9 @@ class ActivityResource(Resource):
 class RaceResource(Resource):
     @jwt_required()
     def get(self):
-        # Get the current user's ID from JWT
         current_user = get_jwt_identity()
-        athlete_id = current_user['id']  # Ensure your token includes the user's ID
+        athlete_id = current_user['id']
         
-        # Get races associated with this athlete through RaceParticipation
         races = db.session.query(Race).join(RaceParticipation).filter(RaceParticipation.athlete_id == athlete_id).all()
         
         return [race.to_dict() for race in races], 200
@@ -223,29 +221,26 @@ class RaceResource(Resource):
         except ValueError:
             return {'message': 'Invalid date format. Use YYYY-MM-DD.'}, 400
 
-        # Get the current user information from JWT
         current_user_email = get_jwt_identity()['email']
         athlete = Athlete.query.filter_by(email=current_user_email).first()
 
         if not athlete:
             return {'message': 'Athlete not found'}, 404
 
-        # Create a new race entry
         new_race = Race(
             race_name=data['race_name'],
             date=date,
             distance=data['distance'],
-            finish_time=data.get('finish_time')  # Include finish_time if provided in the request
+            finish_time=data.get('finish_time')
         )
 
         db.session.add(new_race)
         db.session.commit()
-        
-        # Create RaceParticipation entry to link the athlete with the race
+
         race_participation = RaceParticipation(
             race_id=new_race.id,
             athlete_id=athlete.id,
-            completion_time=data.get('completion_time')  # Include completion_time if provided in the request
+            completion_time=data.get('completion_time')
         )
 
         db.session.add(race_participation)
@@ -253,23 +248,14 @@ class RaceResource(Resource):
 
         return new_race.to_dict(), 201
 
-# RaceParticipationResource for managing race participations
-class RaceParticipationResource(Resource):
+# UserRacesResource
+class UserRacesResource(Resource):
     @jwt_required()
     def get(self):
-        # Get all race participations with race name and athlete name
-        participations = RaceParticipation.query.all()
-
-        result = [
-            {
-                'race_name': participation.race.race_name,
-                'athlete_name': f'{participation.athlete.first_name} {participation.athlete.last_name}',
-                'completion_time': participation.completion_time
-            }
-            for participation in participations
-        ]
-
-        return result, 200
+        current_user = get_jwt_identity()
+        athlete_id = current_user['id']
+        races = db.session.query(Race).join(RaceParticipation).filter(RaceParticipation.athlete_id == athlete_id).all()
+        return [race.to_dict() for race in races], 200
 
 # ForgotPasswordResource for handling password resets
 class ForgotPasswordResource(Resource):
@@ -317,8 +303,8 @@ class RacesWithParticipantsResource(Resource):
                 'id': race.id,
                 'race_name': race.race_name,
                 'date': race.date.strftime('%Y-%m-%d'),
-                'distance': race.distance,  # Include other fields as needed
-                'finish_time': race.finish_time,  # If you want to include finish time
+                'distance': race.distance,
+                'finish_time': race.finish_time,
                 'participants': participants
             }
             response.append(race_info)
@@ -351,6 +337,27 @@ class AthleteResource(Resource):
         db.session.add(new_athlete)
         db.session.commit()
         return new_athlete.to_dict(), 201
+    
+class RaceParticipationResource(Resource):
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        athlete_id = current_user['id']
+
+        participations = RaceParticipation.query.filter_by(athlete_id=athlete_id).all()
+        
+        return [participation.to_dict() for participation in participations], 200
+
+    @jwt_required()
+    def post(self):
+        # Implement post method to add race participation
+        pass
+
+    @jwt_required()
+    def delete(self):
+        # Implement delete method for race participation
+        pass
+
 
 # Resource Mappings with /api prefix
 api.add_resource(AthleteResource, '/api/athletes')  # CRUD operations for athletes
@@ -361,6 +368,7 @@ api.add_resource(ForgotPasswordResource, '/api/forgot-password')  # Endpoint for
 api.add_resource(ResetPasswordResource, '/api/reset-password')  # Endpoint for resetting password
 api.add_resource(AthleteProfileResource, '/api/athlete/profile')  # Athlete profile management
 api.add_resource(RacesWithParticipantsResource, '/api/races_with_participants')  # Get races along with participant names
+api.add_resource(UserRacesResource, '/api/user_races')  # User's specific races
 
 # Root route
 @app.route('/')
