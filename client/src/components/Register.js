@@ -1,6 +1,6 @@
 // client/src/pages/Register.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link here
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
@@ -16,11 +16,9 @@ const RegisterSchema = Yup.object().shape({
 });
 
 const Register = () => {
-  
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  
 
   const handleRegister = (values, { setSubmitting }) => {
     setSubmitting(true);
@@ -40,7 +38,8 @@ const Register = () => {
       .then((data) => {
         console.log('Registration successful:', data);
         setSuccessMessage('Registration successful! You can now login.');
-        navigate('/login');
+        setSubmitting(false); // Set submitting to false before navigation
+        navigate('/login'); // Navigate after setting submitting to false
       })
       .catch((error) => {
         console.error('Error during registration:', error);
@@ -98,7 +97,7 @@ const Register = () => {
           </Form>
         )}
       </Formik>
-      <p>Already have an account? <a href="/login">Login here</a></p>
+      <p>Already have an account? <Link to="/login">Login here</Link></p>
     </div>
   );
 };

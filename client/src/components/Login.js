@@ -1,6 +1,8 @@
 // client/src/components/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -64,7 +66,8 @@ const handleLogin = (e) => {
         </div>
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <a href="/register">Register here</a></p>
+      <p>Don't have an account? <Link to="/register">Register here</Link></p>
+
     </div>
   );
 };

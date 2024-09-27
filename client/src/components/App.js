@@ -20,48 +20,53 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
 
-    if (!token) {
-      navigate('/login'); // Redirect to login
+    // Check if the current path is /login or /register and skip redirect if it is
+    const currentPath = window.location.pathname;
+    if (!token && currentPath !== '/login' && currentPath !== '/register') {
+      setError('User not authenticated. Redirecting to login.');
+      navigate('/login'); // Redirect to login if not authenticated and not on /login or /register
       return;
     }
 
-    // Fetch user data
-    fetch('http://127.0.0.1:5555/api/athlete/profile', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
+    if (token) {
+      // Fetch user data
+      fetch('http://127.0.0.1:5555/api/athlete/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
-        return response.json();
       })
-      .then(data => setUser(data))
-      .catch(error => {
-        setError('Error fetching user data: ' + error.message);
-        localStorage.removeItem('token');
-        navigate('/login'); // Redirect to login if there's an error fetching user data
-      });
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+          return response.json();
+        })
+        .then(data => setUser(data))
+        .catch(error => {
+          setError('Error fetching user data: ' + error.message);
+          localStorage.removeItem('token');
+          navigate('/login'); // Redirect to login if there's an error fetching user data
+        });
 
-    // Fetch activities
-    fetch('http://127.0.0.1:5555/api/activities', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch activities');
+      // Fetch activities
+      fetch('http://127.0.0.1:5555/api/activities', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
-        return response.json();
       })
-      .then(data => setActivities(data))
-      .catch(error => setError('Error fetching activities: ' + error.message));
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch activities');
+          }
+          return response.json();
+        })
+        .then(data => setActivities(data))
+        .catch(error => setError('Error fetching activities: ' + error.message));
+    }
   }, [navigate]); // Added navigate to the dependencies to avoid lint warning
 
   // Function to handle adding a new activity
