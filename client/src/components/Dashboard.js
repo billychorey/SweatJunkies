@@ -127,10 +127,11 @@ const Dashboard = () => {
         {races.length > 0 ? (
           <ul>
             {races.map(race => (
-              <li key={race.id}>
-                {race.race_name} on {race.date} - {race.result}
-              </li>
+                <li key={race.id}>
+                    {race.race_name} on {race.date} - Distance: {race.distance} km, Time: {race.time}
+                </li>
             ))}
+
           </ul>
         ) : (
           <p>No races logged.</p>

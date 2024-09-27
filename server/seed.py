@@ -24,9 +24,29 @@ def seed_data():
     )
     athlete2.set_password('password123')
 
+    athlete3 = Athlete(
+        first_name='Alice',
+        last_name='Johnson',
+        email='alice@example.com',
+    )
+    athlete3.set_password('password123')
+
+    athlete4 = Athlete(
+        first_name='Bob',
+        last_name='Brown',
+        email='bob@example.com',
+    )
+    athlete4.set_password('password123')
+
+    athlete5 = Athlete(
+        first_name='Charlie',
+        last_name='Davis',
+        email='charlie@example.com',
+    )
+    athlete5.set_password('password123')
+
     # Add athletes to the session
-    db.session.add(athlete1)
-    db.session.add(athlete2)
+    db.session.add_all([athlete1, athlete2, athlete3, athlete4, athlete5])
 
     # Create some activities
     activity1 = Activity(
@@ -43,26 +63,73 @@ def seed_data():
         athlete=athlete2
     )
 
+    activity3 = Activity(
+        description='Running',
+        duration=45,
+        date=date(2024, 9, 5),
+        athlete=athlete3
+    )
+
+    activity4 = Activity(
+        description='Yoga',
+        duration=30,
+        date=date(2024, 9, 6),
+        athlete=athlete4
+    )
+
+    activity5 = Activity(
+        description='Hiking',
+        duration=120,
+        date=date(2024, 9, 7),
+        athlete=athlete5
+    )
+
+    # Add activities to the session
+    db.session.add_all([activity1, activity2, activity3, activity4, activity5])
+
     # Create some races
     race1 = Race(
         race_name='5K Marathon',
         date=date(2024, 9, 5),
-        result='20:45',
+        distance=5.0,  # Distance in kilometers
+        time='00:20:45',  # Time in HH:MM:SS format
         athlete=athlete1
     )
 
     race2 = Race(
         race_name='10K City Run',
         date=date(2024, 9, 6),
-        result='42:30',
+        distance=10.0,  # Distance in kilometers
+        time='00:42:30',  # Time in HH:MM:SS format
         athlete=athlete2
     )
 
-    # Add all to the session
-    db.session.add(activity1)
-    db.session.add(activity2)
-    db.session.add(race1)
-    db.session.add(race2)
+    race3 = Race(
+        race_name='Half Marathon',
+        date=date(2024, 9, 8),
+        distance=21.097,  # Distance in kilometers
+        time='01:45:00',  # Time in HH:MM:SS format
+        athlete=athlete3
+    )
+
+    race4 = Race(
+        race_name='Marathon',
+        date=date(2024, 9, 9),
+        distance=42.195,  # Distance in kilometers
+        time='03:30:15',  # Time in HH:MM:SS format
+        athlete=athlete4
+    )
+
+    race5 = Race(
+        race_name='Trail Run',
+        date=date(2024, 9, 10),
+        distance=15.0,  # Distance in kilometers
+        time='01:20:00',  # Time in HH:MM:SS format
+        athlete=athlete5
+    )
+
+    # Add races to the session
+    db.session.add_all([race1, race2, race3, race4, race5])
 
     # Commit the session
     db.session.commit()
