@@ -1,6 +1,6 @@
 // client/src/components/App.js
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './Home';
 import Login from './Login';
 import Register from './Register';
@@ -9,18 +9,20 @@ import Activities from './Activities';
 import RaceResults from './RaceResults';
 import Profile from './Profile';
 import Footer from './Footer';
-import Navbar from './Navbar';
+import Navbar from './Navbar'; // Include Navbar
 
 const App = () => {
   const [user, setUser] = useState(null); // State to store user data
   const [activities, setActivities] = useState([]); // State to store activities
   const [error, setError] = useState(''); // State to store errors
+  const navigate = useNavigate(); // Moved useNavigate inside the component
 
   useEffect(() => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      window.location.href = '/login';
+      setError('User not authenticated. Redirecting to login.');
+      navigate('/login'); // Redirect to login
       return;
     }
 
@@ -42,7 +44,7 @@ const App = () => {
       .catch(error => {
         setError('Error fetching user data: ' + error.message);
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        navigate('/login'); // Redirect to login if there's an error fetching user data
       });
 
     // Fetch activities
@@ -61,7 +63,7 @@ const App = () => {
       })
       .then(data => setActivities(data))
       .catch(error => setError('Error fetching activities: ' + error.message));
-  }, []);
+  }, [navigate]); // Added navigate to the dependencies to avoid lint warning
 
   // Function to handle adding a new activity
   const handleAddActivity = (activity) => {
@@ -89,7 +91,7 @@ const App = () => {
 
   return (
     <div className="App">
-      {user && <Navbar />} {/* Render Navbar only if user is authenticated */}
+      <Navbar /> {/* Add the Navbar here */}
       {error && <p className="error">{error}</p>}
       <Routes>
         <Route path="/" element={<Home />} />

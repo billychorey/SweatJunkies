@@ -181,38 +181,40 @@ class ActivityResource(Resource):
         return new_activity.to_dict(), 201
 
 # RaceResource with authentication
+from datetime import datetime
+
 class RaceResource(Resource):
     @jwt_required()
-    def get(self):
-        current_user_email = get_jwt_identity()['email']
-        athlete = Athlete.query.filter_by(email=current_user_email).first()
-
-        if not athlete:
-            return {'message': 'Athlete not found'}, 404
-
-        # Fetch only races associated with the authenticated athlete
-        races = Race.query.filter_by(athlete_id=athlete.id).all()
-        return [race.to_dict() for race in races], 200
-
-    @jwt_required()
     def post(self):
+        data = request.get_json()
+        
+        # Convert the date string to a Python date object
+        try:
+            date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        except ValueError:
+            return {'message': 'Invalid date format. Use YYYY-MM-DD.'}, 400
+        
+        # Get the current user's email and athlete ID
         current_user_email = get_jwt_identity()['email']
         athlete = Athlete.query.filter_by(email=current_user_email).first()
-
+        
         if not athlete:
             return {'message': 'Athlete not found'}, 404
 
-        data = request.get_json()
+        # Create a new Race object with the converted date
         new_race = Race(
             race_name=data['race_name'],
-            date=data['date'],
+            date=date,  # Use the Python date object here
             result=data['result'],
-            athlete_id=athlete.id  # Set the athlete ID for the race
+            athlete_id=athlete.id  # Use the athlete's ID from the authenticated user
         )
-        
+
+        # Add and commit the new race to the database
         db.session.add(new_race)
         db.session.commit()
+        
         return new_race.to_dict(), 201
+
 
 # ForgotPasswordResource for handling password resets
 class ForgotPasswordResource(Resource):
