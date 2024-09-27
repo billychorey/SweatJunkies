@@ -1,12 +1,12 @@
 // client/src/components/Dashboard.js
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../AppContext'; // Import your context
+import { AppContext } from '../AppContext';
 
 const Dashboard = () => {
-  const { activities, races, athlete, error, loading } = useContext(AppContext); // Get data from context
+  const { activities, races, athlete, error, loading } = useContext(AppContext);
   const navigate = useNavigate();
-
+    
   const handleEditProfile = () => {
     navigate('/profile');
   };
@@ -17,7 +17,9 @@ const Dashboard = () => {
     <div className="content-column">
       {/* Welcome Message */}
       <h1>Dashboard for {athlete.first_name || 'Guest'} {athlete.last_name || ''}</h1>
-      
+      {/* Smaller footer message */}
+      <h3>Welcome back, {athlete.first_name || 'Guest'}!</h3>
+
       {error && <p className="error">{error}</p>}
 
       {/* Profile Section */}
@@ -50,9 +52,9 @@ const Dashboard = () => {
         {races.length > 0 ? (
           <ul>
             {races.map(race => (
-                <li key={race.id}>
-                    {race.race_name} on {race.date} - Distance: {race.distance}, Finish Time: {race.finish_time}
-                </li>
+              <li key={race.id}>
+                {race.race_name} on {race.date} - Distance: {race.distance}, Finish Time: {race.finish_time}
+              </li>
             ))}
           </ul>
         ) : (
@@ -60,6 +62,11 @@ const Dashboard = () => {
         )}
         <button onClick={() => navigate('/races')}>View Race Results Page</button>
       </section>
+
+      {/* Footer Section */}
+      <footer>
+        <p>© 2024 Sweat Junkies. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

@@ -4,13 +4,15 @@ import React from 'react';
 const Footer = ({ user }) => {
   return (
     <div className="footer">
-      {user ? (
-        <>
-          <p>Great to see you again, {user.first_name}!</p>
-          <p>Today's Date: {new Date().toLocaleDateString()}</p>
-        </>
-      ) : null}
+        {user ? (
+            <>
+            <p>Keep up the good work {user.first_name}, Every step counts!!</p>
+            </>
+        ) : (
+            <p>Welcome to Sweat Junkies! Log in to track your progress.</p>
+        )}
     </div>
+
   );
 };
 

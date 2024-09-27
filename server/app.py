@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from flask_restful import Api, Resource
@@ -6,9 +8,11 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_bcrypt import Bcrypt
 from config import db, app, serializer
 from models import Athlete, Activity, Race, RaceParticipation
-from utils.email_utils import send_reset_email
+from utils.email_utils import send_reset_email  # Ensure this utility is implemented
 from datetime import datetime, timedelta
 import os  # Added import for os
+import sendgrid
+from sendgrid.helpers.mail import Mail
 
 # JWT and Bcrypt initialization
 jwt = JWTManager(app)
@@ -45,25 +49,37 @@ def after_request(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return response
 
+def send_welcome_email(user_email):
+    sg = sendgrid.SendGridAPIClient(api_key=os.getenv('SENDGRID_API_KEY'))
+    email_content = Mail(
+        from_email='billychorey@gmail.com',
+        to_emails=user_email,
+        subject="Welcome to Sweat Junkies!",
+        plain_text_content=f"Hi {user_email}, welcome to Sweat Junkies! We're glad to have you.",
+        html_content=f"<strong>Hi {user_email}, welcome to Sweat Junkies! We're glad to have you.</strong>"
+    )
+    try:
+        response = sg.send(email_content)
+        print(f"Email sent to {user_email}, Status Code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
 # Register route
-@app.route('/api/register', methods=['POST', 'OPTIONS'])
+@app.route('/api/register', methods=['POST'])
 def register():
-    if request.method == 'OPTIONS':
-        response = jsonify({"status": "preflight check"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        return response
-
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    first_name = data.get('firstName')  # Match the frontend's 'firstName'
-    last_name = data.get('lastName')  # Match the frontend's 'lastName'
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+
+    # Check for required fields
+    if not email or not password or not first_name or not last_name:
+        return jsonify({"message": "Missing required fields"}), 400
 
     if Athlete.query.filter_by(email=email).first():
         return jsonify({"message": "Email already exists"}), 400
 
+    # Proceed with creating new athlete
     new_athlete = Athlete(
         first_name=first_name,
         last_name=last_name,
@@ -73,9 +89,10 @@ def register():
     db.session.add(new_athlete)
     db.session.commit()
 
-    response = jsonify({"message": "User registered successfully"})
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-    return response, 201  # Include CORS headers in the response
+    # Send welcome email after successful registration
+    send_welcome_email(email)
+
+    return jsonify({"message": "User registered successfully"}), 201
 
 # Login route
 @app.route('/api/login', methods=['POST', 'OPTIONS'])
@@ -235,6 +252,7 @@ class RaceResource(Resource):
         db.session.commit()
 
         return new_race.to_dict(), 201
+
 # RaceParticipationResource for managing race participations
 class RaceParticipationResource(Resource):
     @jwt_required()
@@ -318,7 +336,6 @@ class AthleteResource(Resource):
         last_name = data.get('last_name')
         email = data.get('email')
         password = data.get('password')
-        # Removing fields like date_of_birth, gender, and profile_picture
         bio = data.get('bio', '')  # Default to an empty string if bio is not provided
 
         if Athlete.query.filter_by(email=email).first():
@@ -344,7 +361,6 @@ api.add_resource(ForgotPasswordResource, '/api/forgot-password')  # Endpoint for
 api.add_resource(ResetPasswordResource, '/api/reset-password')  # Endpoint for resetting password
 api.add_resource(AthleteProfileResource, '/api/athlete/profile')  # Athlete profile management
 api.add_resource(RacesWithParticipantsResource, '/api/races_with_participants')  # Get races along with participant names
-
 
 # Root route
 @app.route('/')

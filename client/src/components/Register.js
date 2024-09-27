@@ -30,19 +30,24 @@ const Register = () => {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Registration failed');
+          return response.json().then(data => {
+            throw new Error(data.message || 'Registration failed'); // Use the specific message from backend
+          });
         }
         return response.json();
       })
       .then((data) => {
         console.log('Registration successful:', data);
+        if (data.token) {
+          localStorage.setItem('token', data.token); // Store token if returned by the backend
+        }
         setSuccessMessage('Registration successful! You can now login.');
         setSubmitting(false); // Set submitting to false before navigation
-        navigate('/login'); // Navigate after setting submitting to false
+        navigate('/login'); // Navigate to the login page after successful registration
       })
       .catch((error) => {
         console.error('Error during registration:', error);
-        setError('Registration failed. Please try again.');
+        setError(error.message || 'Registration failed. Please try again.'); // Show specific error
         setSubmitting(false);
       });
   };
